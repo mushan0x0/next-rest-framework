@@ -19,10 +19,26 @@ Please use \`docsRoute\` instead: https://vercel.com/docs/functions/edge-functio
 };
 
 export const logNextRestFrameworkError = (error: unknown) => {
-  console.error(
-    chalk.red(`Next REST Framework encountered an error:
-${error}`)
-  );
+  const lines: string[] = ['Next REST Framework encountered an error:'];
+  if (error instanceof Error) {
+    lines.push(error.stack ?? `${error.name}: ${error.message}`);
+    let cause: unknown = (error as { cause?: unknown }).cause;
+    let depth = 0;
+    while (cause !== undefined && cause !== null && depth < 5) {
+      lines.push('Caused by:');
+      if (cause instanceof Error) {
+        lines.push(cause.stack ?? `${cause.name}: ${cause.message}`);
+        cause = (cause as { cause?: unknown }).cause;
+      } else {
+        lines.push(typeof cause === 'string' ? cause : String(cause));
+        cause = undefined;
+      }
+      depth += 1;
+    }
+  } else {
+    lines.push(typeof error === 'string' ? error : String(error));
+  }
+  console.error(chalk.red(lines.join('\n')));
 };
 
 export const logGenerateErrorForRoute = (path: string, error: unknown) => {
