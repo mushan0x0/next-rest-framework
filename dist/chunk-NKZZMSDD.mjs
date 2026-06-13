@@ -1,29 +1,11 @@
-"use strict";
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __commonJS = (cb, mod) => function __require() {
-  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-};
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+import {
+  __commonJS
+} from "./chunk-SPFPWZVF.mjs";
 
 // package.json
 var require_package = __commonJS({
-  "package.json"(exports2, module2) {
-    module2.exports = {
+  "package.json"(exports, module) {
+    module.exports = {
       name: "next-rest-framework",
       version: "6.1.3",
       description: "Next REST Framework - Type-safe, self-documenting APIs for Next.js",
@@ -90,28 +72,6 @@ var require_package = __commonJS({
 });
 
 // src/constants.ts
-var constants_exports = {};
-__export(constants_exports, {
-  DEFAULT_DESCRIPTION: () => DEFAULT_DESCRIPTION,
-  DEFAULT_ERRORS: () => DEFAULT_ERRORS,
-  DEFAULT_FAVICON_URL: () => DEFAULT_FAVICON_URL,
-  DEFAULT_LOGO_URL: () => DEFAULT_LOGO_URL,
-  DEFAULT_OG_TYPE: () => DEFAULT_OG_TYPE,
-  DEFAULT_TITLE: () => DEFAULT_TITLE,
-  ERROR_MESSAGE_SCHEMA: () => ERROR_MESSAGE_SCHEMA,
-  FORM_DATA_CONTENT_TYPES_THAT_SUPPORT_VALIDATION: () => FORM_DATA_CONTENT_TYPES_THAT_SUPPORT_VALIDATION,
-  HOMEPAGE: () => HOMEPAGE,
-  INVALID_MEDIA_TYPE_RESPONSE: () => INVALID_MEDIA_TYPE_RESPONSE,
-  INVALID_PATH_PARAMETERS_RESPONSE: () => INVALID_PATH_PARAMETERS_RESPONSE,
-  INVALID_QUERY_PARAMETERS_RESPONSE: () => INVALID_QUERY_PARAMETERS_RESPONSE,
-  INVALID_REQUEST_BODY_RESPONSE: () => INVALID_REQUEST_BODY_RESPONSE,
-  INVALID_RPC_REQUEST_RESPONSE: () => INVALID_RPC_REQUEST_RESPONSE,
-  MESSAGE_WITH_ERRORS_SCHEMA: () => MESSAGE_WITH_ERRORS_SCHEMA,
-  UNEXPECTED_ERROR_RESPONSE: () => UNEXPECTED_ERROR_RESPONSE,
-  VERSION: () => VERSION,
-  ValidMethod: () => ValidMethod
-});
-module.exports = __toCommonJS(constants_exports);
 var DEFAULT_ERRORS = {
   unexpectedError: "An unknown error occurred, trying again might help.",
   methodNotAllowed: "Method not allowed.",
@@ -264,24 +224,24 @@ var INVALID_PATH_PARAMETERS_RESPONSE = {
     }
   }
 };
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  DEFAULT_DESCRIPTION,
+
+export {
   DEFAULT_ERRORS,
+  ValidMethod,
+  VERSION,
+  HOMEPAGE,
+  DEFAULT_TITLE,
+  DEFAULT_OG_TYPE,
+  DEFAULT_DESCRIPTION,
   DEFAULT_FAVICON_URL,
   DEFAULT_LOGO_URL,
-  DEFAULT_OG_TYPE,
-  DEFAULT_TITLE,
-  ERROR_MESSAGE_SCHEMA,
   FORM_DATA_CONTENT_TYPES_THAT_SUPPORT_VALIDATION,
-  HOMEPAGE,
-  INVALID_MEDIA_TYPE_RESPONSE,
-  INVALID_PATH_PARAMETERS_RESPONSE,
-  INVALID_QUERY_PARAMETERS_RESPONSE,
-  INVALID_REQUEST_BODY_RESPONSE,
-  INVALID_RPC_REQUEST_RESPONSE,
   MESSAGE_WITH_ERRORS_SCHEMA,
+  INVALID_REQUEST_BODY_RESPONSE,
+  ERROR_MESSAGE_SCHEMA,
   UNEXPECTED_ERROR_RESPONSE,
-  VERSION,
-  ValidMethod
-});
+  INVALID_RPC_REQUEST_RESPONSE,
+  INVALID_MEDIA_TYPE_RESPONSE,
+  INVALID_QUERY_PARAMETERS_RESPONSE,
+  INVALID_PATH_PARAMETERS_RESPONSE
+};
