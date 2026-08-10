@@ -102,7 +102,7 @@ interface RouteOperationDefinition<Method extends keyof typeof ValidMethod = key
     handler?: TypedRouteHandler;
 }
 declare const routeOperation: <Method extends "GET" | "PUT" | "POST" | "DELETE" | "OPTIONS" | "HEAD" | "PATCH">({ openApiOperation, method }: {
-    openApiOperation?: Partial<Pick<OpenAPIV3_1.OperationObject<{}>, "description" | "externalDocs" | "deprecated" | "summary" | "servers" | "security" | "tags" | "parameters" | "callbacks">> | undefined;
+    openApiOperation?: Partial<Pick<OpenAPIV3_1.OperationObject<{}>, "servers" | "security" | "tags" | "externalDocs" | "description" | "summary" | "parameters" | "callbacks" | "deprecated">> | undefined;
     method: Method;
 }) => {
     input: <ContentType extends AnyContentTypeWithAutocompleteForMostCommonOnes, Body_1, Query extends BaseQuery, Params extends BaseParams>(input: InputObject$1<ContentType, Body_1, Query, Params>) => {
@@ -243,7 +243,7 @@ interface ApiRouteOperationDefinition<Method extends keyof typeof ValidMethod = 
     handler?: TypedApiRouteHandler;
 }
 declare const apiRouteOperation: <Method extends "GET" | "PUT" | "POST" | "DELETE" | "OPTIONS" | "HEAD" | "PATCH">({ openApiOperation, method }: {
-    openApiOperation?: Partial<Pick<OpenAPIV3_1.OperationObject<{}>, "description" | "externalDocs" | "deprecated" | "summary" | "servers" | "security" | "tags" | "parameters" | "callbacks">> | undefined;
+    openApiOperation?: Partial<Pick<OpenAPIV3_1.OperationObject<{}>, "servers" | "security" | "tags" | "externalDocs" | "description" | "summary" | "parameters" | "callbacks" | "deprecated">> | undefined;
     method: Method;
 }) => {
     input: <ContentType extends AnyContentTypeWithAutocompleteForMostCommonOnes, Body_1, Query extends BaseQuery, Params extends BaseParams>(input: InputObject<ContentType, Body_1, Query, Params>) => {

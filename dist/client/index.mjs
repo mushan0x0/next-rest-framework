@@ -1,4 +1,4 @@
-import "../chunk-SPFPWZVF.mjs";
+import "../chunk-BXO7ZPPU.mjs";
 
 // src/client/rpc-client.ts
 var fetcher = async ({

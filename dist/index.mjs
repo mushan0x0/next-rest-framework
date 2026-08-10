@@ -4,20 +4,19 @@ import {
   getPathsFromRoute,
   getPathsFromRpcRoute,
   logNextRestFrameworkError,
-  logNextRestFrameworkResponse,
   logPagesEdgeRuntimeErrorForRoute,
   parseRpcOperationResponseJson,
   rpcOperation,
   validateSchema
-} from "./chunk-CGZPGSO2.mjs";
+} from "./chunk-ZFIJRORI.mjs";
 import {
   DEFAULT_ERRORS,
   FORM_DATA_CONTENT_TYPES_THAT_SUPPORT_VALIDATION
-} from "./chunk-NKZZMSDD.mjs";
+} from "./chunk-FBON6HRP.mjs";
 import {
   __commonJS,
   __toESM
-} from "./chunk-SPFPWZVF.mjs";
+} from "./chunk-BXO7ZPPU.mjs";
 
 // ../../node_modules/.pnpm/next@15.4.8_@babel+core@7.22.11_react-dom@18.2.0_react@18.2.0__react@18.2.0/node_modules/next/dist/shared/lib/i18n/detect-domain-locale.js
 var require_detect_domain_locale = __commonJS({
@@ -5763,13 +5762,10 @@ var apiRoute = (operations, options) => {
         }
       );
     }
-    let operationId;
     try {
-      const operationEntry = Object.entries(operations).find(
+      const operation = Object.entries(operations).find(
         ([_operationId, operation2]) => operation2.method === req.method
-      );
-      operationId = operationEntry?.[0];
-      const operation = operationEntry?.[1];
+      )?.[1];
       if (!operation) {
         res.setHeader(
           "Allow",
@@ -5839,7 +5835,7 @@ var apiRoute = (operations, options) => {
             contentType
           )) {
             if (contentType === "multipart/form-data" && !(req.body instanceof FormData) && typeof EdgeRuntime !== "string") {
-              const { parseMultiPartFormData } = await import("./form-data-NF3JAARS.mjs");
+              const { parseMultiPartFormData } = await import("./form-data-CWQIFI6N.mjs");
               try {
                 req.body = await parseMultiPartFormData(req);
               } catch (e) {
@@ -5915,11 +5911,7 @@ var apiRoute = (operations, options) => {
         res.status(501).json({ message: DEFAULT_ERRORS.notImplemented });
       }
     } catch (error) {
-      logNextRestFrameworkError(error, {
-        method: req.method,
-        operationId,
-        url: req.url
-      });
+      logNextRestFrameworkError(error);
       res.status(500).json({ message: DEFAULT_ERRORS.unexpectedError });
     }
   };
@@ -6076,10 +6068,7 @@ var docsApiRoute = (_config) => {
       res.setHeader("Content-Type", "text/html");
       res.status(200).send(html);
     } catch (error) {
-      logNextRestFrameworkError(error, {
-        method: req.method,
-        url: req.url
-      });
+      logNextRestFrameworkError(error);
       res.status(500).json({ message: DEFAULT_ERRORS.unexpectedError });
     }
   };
@@ -6101,15 +6090,13 @@ var rpcApiRoute = (operations, options) => {
         }
       );
     }
-    let operationId;
     try {
       if (req.method !== "POST" /* POST */) {
         res.setHeader("Allow", "POST");
         res.status(405).json({ message: DEFAULT_ERRORS.methodNotAllowed });
         return;
       }
-      operationId = req.query.operationId?.toString() ?? "";
-      const operation = operations[operationId];
+      const operation = operations[req.query.operationId?.toString() ?? ""];
       if (!operation) {
         res.status(400).json({ message: DEFAULT_ERRORS.operationNotAllowed });
         return;
@@ -6157,7 +6144,7 @@ var rpcApiRoute = (operations, options) => {
             contentType
           )) {
             if (contentType === "multipart/form-data" && !(req.body instanceof FormData) && typeof EdgeRuntime !== "string") {
-              const { parseMultiPartFormData } = await import("./form-data-NF3JAARS.mjs");
+              const { parseMultiPartFormData } = await import("./form-data-CWQIFI6N.mjs");
               try {
                 req.body = await parseMultiPartFormData(req);
               } catch {
@@ -6222,11 +6209,7 @@ var rpcApiRoute = (operations, options) => {
       const json = await parseRpcOperationResponseJson(_res);
       res.status(200).json(json);
     } catch (error) {
-      logNextRestFrameworkError(error, {
-        method: req.method,
-        operationId,
-        url: req.url
-      });
+      logNextRestFrameworkError(error);
       res.status(400).json({ message: DEFAULT_ERRORS.unexpectedError });
     }
   };
@@ -6256,10 +6239,7 @@ var docsRoute = (_config) => {
         }
       });
     } catch (error) {
-      logNextRestFrameworkError(error, {
-        method: _req.method,
-        url: _req.url
-      });
+      logNextRestFrameworkError(error);
       return import_server.NextResponse.json(
         { message: DEFAULT_ERRORS.unexpectedError },
         { status: 500 }
@@ -6281,18 +6261,10 @@ var FORM_DATA_CONTENT_TYPES = [
 ];
 var route = (operations, options) => {
   const handler = async (_req, context) => {
-    let operationId;
     try {
-      const operationEntry = Object.entries(operations).find(
+      const operation = Object.entries(operations).find(
         ([_operationId, operation2]) => operation2.method === _req.method
-      );
-      operationId = operationEntry?.[0];
-      const operation = operationEntry?.[1];
-      const logContext = {
-        method: _req.method,
-        operationId,
-        url: _req.url
-      };
+      )?.[1];
       if (!operation) {
         return import_server2.NextResponse.json(
           { message: DEFAULT_ERRORS.methodNotAllowed },
@@ -6321,7 +6293,6 @@ var route = (operations, options) => {
         );
         const isOptionsResponse = (res3) => typeof res3 === "object";
         if (res2 instanceof Response) {
-          await logNextRestFrameworkResponse(res2, logContext);
           return res2;
         } else if (isOptionsResponse(res2)) {
           middlewareOptions = res2;
@@ -6333,7 +6304,6 @@ var route = (operations, options) => {
             middlewareOptions
           );
           if (res22 instanceof Response) {
-            await logNextRestFrameworkResponse(res22, logContext);
             return res22;
           } else if (isOptionsResponse(res22)) {
             middlewareOptions = res22;
@@ -6345,7 +6315,6 @@ var route = (operations, options) => {
               middlewareOptions
             );
             if (res3 instanceof Response) {
-              await logNextRestFrameworkResponse(res3, logContext);
               return res3;
             } else if (isOptionsResponse(res3)) {
               middlewareOptions = res3;
@@ -6508,14 +6477,9 @@ var route = (operations, options) => {
           { status: 501 }
         );
       }
-      await logNextRestFrameworkResponse(res, logContext);
       return res;
     } catch (error) {
-      logNextRestFrameworkError(error, {
-        method: _req.method,
-        operationId,
-        url: _req.url
-      });
+      logNextRestFrameworkError(error);
       return import_server2.NextResponse.json(
         { message: DEFAULT_ERRORS.unexpectedError },
         { status: 500 }
@@ -6659,7 +6623,6 @@ var routeOperation = ({
 var import_server4 = __toESM(require_server());
 var rpcRoute = (operations, options) => {
   const handler = async (req, { params }) => {
-    let operationId;
     try {
       if (req.method !== "POST" /* POST */) {
         return import_server4.NextResponse.json(
@@ -6672,8 +6635,7 @@ var rpcRoute = (operations, options) => {
           }
         );
       }
-      operationId = (await params).operationId ?? "";
-      const operation = operations[operationId];
+      const operation = operations[(await params).operationId ?? ""];
       if (!operation) {
         return import_server4.NextResponse.json(
           { message: DEFAULT_ERRORS.operationNotAllowed },
@@ -6819,11 +6781,7 @@ var rpcRoute = (operations, options) => {
         }
       });
     } catch (error) {
-      logNextRestFrameworkError(error, {
-        method: req.method,
-        operationId,
-        url: req.url
-      });
+      logNextRestFrameworkError(error);
       return import_server4.NextResponse.json(
         { message: DEFAULT_ERRORS.unexpectedError },
         { status: 400 }

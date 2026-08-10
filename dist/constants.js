@@ -25,7 +25,7 @@ var require_package = __commonJS({
   "package.json"(exports2, module2) {
     module2.exports = {
       name: "next-rest-framework",
-      version: "6.1.3",
+      version: "6.1.2",
       description: "Next REST Framework - Type-safe, self-documenting APIs for Next.js",
       keywords: [
         "nextjs",
@@ -67,6 +67,9 @@ var require_package = __commonJS({
         lodash: "4.18.1",
         prettier: "3.0.2",
         qs: "6.15.1"
+      },
+      peerDependencies: {
+        zod: "^4.0.0"
       },
       devDependencies: {
         "@types/formidable": "^3.4.5",
