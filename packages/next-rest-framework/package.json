@@ -43,6 +43,9 @@
     "prettier": "3.0.2",
     "qs": "6.15.1"
   },
+  "peerDependencies": {
+    "zod": "^4.0.0"
+  },
   "devDependencies": {
     "@types/formidable": "^3.4.5",
     "@types/jest": "29.5.4",
