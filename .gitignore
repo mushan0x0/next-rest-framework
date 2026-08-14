@@ -1,6 +1,10 @@
 node_modules
 coverage
 dist
+# pkg 分支专用：根 dist 就是要发布的产物，必须跟踪。
+# 不写这行的话，tsup 每次重打包生成的新哈希 chunk-*.mjs 都是未跟踪文件，
+# `git commit -am` 全部漏掉 —— 下游装到的 tarball 就会缺 chunk，dev 全站 500。
+!/dist
 tsconfig.tsbuildinfo
 .next
 next-env.d.ts
