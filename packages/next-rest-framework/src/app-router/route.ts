@@ -73,6 +73,10 @@ export const route = <T extends Record<string, RouteOperationDefinition>>(
 
       reqClone.json = async () => await _req.clone().json();
       reqClone.formData = async () => await _req.clone().formData();
+      // `new NextRequest(url, { method, headers })` above creates a body-less request, so the
+      // inherited `text()` would resolve to ''. Handlers that need the raw body (e.g. webhook
+      // signature verification over the exact payload) must read it from the original request.
+      reqClone.text = async () => await _req.clone().text();
 
       let middlewareOptions: BaseOptions = {};
 
