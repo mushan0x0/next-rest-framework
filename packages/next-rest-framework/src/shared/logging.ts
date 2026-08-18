@@ -1,11 +1,11 @@
 import chalk from 'chalk';
 
-export type NextRestFrameworkErrorLogContext = {
+export interface NextRestFrameworkErrorLogContext {
   method?: string;
   operationId?: string;
   route?: string;
   url?: string;
-};
+}
 
 const formatValue = (value: unknown) => {
   if (typeof value === 'string') {
