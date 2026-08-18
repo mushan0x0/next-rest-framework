@@ -1,7 +1,7 @@
 import {
   isValidMethod,
   logGenerateErrorForRoute
-} from "./chunk-ZFIJRORI.mjs";
+} from "./chunk-PUCJG2HH.mjs";
 
 // src/cli/utils.ts
 import chalk from "chalk";

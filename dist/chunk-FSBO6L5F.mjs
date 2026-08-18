@@ -1,13 +1,13 @@
 import {
   __commonJS
-} from "./chunk-BXO7ZPPU.mjs";
+} from "./chunk-SPFPWZVF.mjs";
 
 // package.json
 var require_package = __commonJS({
   "package.json"(exports, module) {
     module.exports = {
       name: "next-rest-framework",
-      version: "6.1.2",
+      version: "6.1.1",
       description: "Next REST Framework - Type-safe, self-documenting APIs for Next.js",
       keywords: [
         "nextjs",
@@ -49,9 +49,6 @@ var require_package = __commonJS({
         lodash: "4.18.1",
         prettier: "3.0.2",
         qs: "6.15.1"
-      },
-      peerDependencies: {
-        zod: "^4.0.0"
       },
       devDependencies: {
         "@types/formidable": "^3.4.5",

@@ -1,7 +1,7 @@
 import {
   findConfig,
   generateOpenApiSpec
-} from "./chunk-AYENIK7K.mjs";
+} from "./chunk-PS3VIEJL.mjs";
 
 // src/cli/generate.ts
 import chalk from "chalk";

@@ -15,14 +15,12 @@ import {
   UNEXPECTED_ERROR_RESPONSE,
   VERSION,
   ValidMethod
-} from "./chunk-FBON6HRP.mjs";
+} from "./chunk-2PBOIPNY.mjs";
 
 // src/shared/schemas.ts
 import { z } from "zod";
 import chalk from "chalk";
 var isZodSchema = (schema) => !!schema && typeof schema === "object" && "_def" in schema;
-var isZodObjectSchema = (schema) => schema instanceof z.ZodObject;
-var isZodArraySchema = (schema) => schema instanceof z.ZodArray;
 var zodSchemaValidator = ({
   schema,
   obj
@@ -50,21 +48,6 @@ var validateSchema = ({
   }
   throw Error("Invalid schema.");
 };
-var registerDescriptions = (schema, registry) => {
-  if (schema.description) {
-    registry.add(schema, { description: schema.description });
-  }
-  if (isZodObjectSchema(schema)) {
-    Object.values(schema.shape).forEach(
-      (propSchema) => {
-        registerDescriptions(propSchema, registry);
-      }
-    );
-  }
-  if (isZodArraySchema(schema)) {
-    registerDescriptions(schema.element, registry);
-  }
-};
 var getJsonSchema = ({
   schema,
   operationId,
@@ -72,15 +55,12 @@ var getJsonSchema = ({
 }) => {
   if (isZodSchema(schema)) {
     try {
-      const localRegistry = z.core.registry();
-      registerDescriptions(schema, localRegistry);
       const io = type === "output-body" ? "output" : "input";
       return z.toJSONSchema(schema, {
         target: "openapi-3.0",
         unrepresentable: "any",
         // Allow unrepresentable types (date, bigint, etc.) to be converted to {}
-        io,
-        metadata: localRegistry
+        io
       });
     } catch (error) {
       const solutions = {
@@ -440,6 +420,49 @@ var getHtmlForDocs = ({
 
 // src/shared/logging.ts
 import chalk2 from "chalk";
+var formatValue = (value) => {
+  if (typeof value === "string") {
+    return value;
+  }
+  try {
+    return JSON.stringify(value, null, 2);
+  } catch {
+    return String(value);
+  }
+};
+var formatError = (error, depth = 0) => {
+  const lines = [];
+  if (error instanceof Error) {
+    lines.push(error.stack ?? `${error.name}: ${error.message}`);
+    const props = Object.fromEntries(
+      Object.entries(error).filter(([key]) => key !== "cause")
+    );
+    if (Object.keys(props).length > 0) {
+      lines.push(`properties: ${formatValue(props)}`);
+    }
+    const cause = error.cause;
+    if (cause !== void 0 && depth < 3) {
+      lines.push(`cause:
+${formatError(cause, depth + 1)}`);
+    }
+  } else {
+    lines.push(formatValue(error));
+  }
+  return lines.join("\n");
+};
+var formatContext = (context) => {
+  if (!context) {
+    return "";
+  }
+  const entries = Object.entries(context).filter(
+    ([, value]) => value !== void 0 && value !== ""
+  );
+  if (entries.length === 0) {
+    return "";
+  }
+  return `${entries.map(([key, value]) => `${key}: ${value}`).join("\n")}
+`;
+};
 var logPagesEdgeRuntimeErrorForRoute = (route) => {
   console.error(
     chalk2.red(`---
@@ -448,10 +471,33 @@ Please use \`route\` instead: https://vercel.com/docs/functions/edge-functions/q
 ---`)
   );
 };
-var logNextRestFrameworkError = (error) => {
+var logNextRestFrameworkError = (error, context) => {
   console.error(
     chalk2.red(`Next REST Framework encountered an error:
-${error}`)
+${formatContext(context)}${formatError(error)}`)
+  );
+};
+var logNextRestFrameworkResponse = async (response, context) => {
+  if (response.status < 500) {
+    return;
+  }
+  let body;
+  try {
+    const text = await response.clone().text();
+    if (text) {
+      try {
+        body = JSON.parse(text);
+      } catch {
+        body = text;
+      }
+    }
+  } catch (error) {
+    body = `Failed to read response body: ${formatError(error)}`;
+  }
+  console.error(
+    chalk2.red(`Next REST Framework returned an error response:
+${formatContext(context)}status: ${response.status}
+body: ${formatValue(body)}`)
   );
 };
 var logGenerateErrorForRoute = (path, error) => {
@@ -791,6 +837,7 @@ export {
   getHtmlForDocs,
   logPagesEdgeRuntimeErrorForRoute,
   logNextRestFrameworkError,
+  logNextRestFrameworkResponse,
   logGenerateErrorForRoute,
   validateSchema,
   isValidMethod,

@@ -17,7 +17,7 @@ import {
   UNEXPECTED_ERROR_RESPONSE,
   VERSION,
   ValidMethod
-} from "./chunk-FBON6HRP.mjs";
+} from "./chunk-2PBOIPNY.mjs";
 import "./chunk-BXO7ZPPU.mjs";
 export {
   DEFAULT_DESCRIPTION,

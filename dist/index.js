@@ -38,7 +38,7 @@ var require_package = __commonJS({
   "package.json"(exports2, module2) {
     module2.exports = {
       name: "next-rest-framework",
-      version: "6.1.2",
+      version: "6.1.4",
       description: "Next REST Framework - Type-safe, self-documenting APIs for Next.js",
       keywords: [
         "nextjs",
@@ -6192,6 +6192,49 @@ var getHtmlForDocs = ({
 
 // src/shared/logging.ts
 var import_chalk = __toESM(require("chalk"));
+var formatValue = (value) => {
+  if (typeof value === "string") {
+    return value;
+  }
+  try {
+    return JSON.stringify(value, null, 2);
+  } catch {
+    return String(value);
+  }
+};
+var formatError = (error, depth = 0) => {
+  const lines = [];
+  if (error instanceof Error) {
+    lines.push(error.stack ?? `${error.name}: ${error.message}`);
+    const props = Object.fromEntries(
+      Object.entries(error).filter(([key]) => key !== "cause")
+    );
+    if (Object.keys(props).length > 0) {
+      lines.push(`properties: ${formatValue(props)}`);
+    }
+    const cause = error.cause;
+    if (cause !== void 0 && depth < 3) {
+      lines.push(`cause:
+${formatError(cause, depth + 1)}`);
+    }
+  } else {
+    lines.push(formatValue(error));
+  }
+  return lines.join("\n");
+};
+var formatContext = (context) => {
+  if (!context) {
+    return "";
+  }
+  const entries = Object.entries(context).filter(
+    ([, value]) => value !== void 0 && value !== ""
+  );
+  if (entries.length === 0) {
+    return "";
+  }
+  return `${entries.map(([key, value]) => `${key}: ${value}`).join("\n")}
+`;
+};
 var logPagesEdgeRuntimeErrorForRoute = (route2) => {
   console.error(
     import_chalk.default.red(`---
@@ -6200,10 +6243,33 @@ Please use \`route\` instead: https://vercel.com/docs/functions/edge-functions/q
 ---`)
   );
 };
-var logNextRestFrameworkError = (error) => {
+var logNextRestFrameworkError = (error, context) => {
   console.error(
     import_chalk.default.red(`Next REST Framework encountered an error:
-${error}`)
+${formatContext(context)}${formatError(error)}`)
+  );
+};
+var logNextRestFrameworkResponse = async (response, context) => {
+  if (response.status < 500) {
+    return;
+  }
+  let body;
+  try {
+    const text = await response.clone().text();
+    if (text) {
+      try {
+        body = JSON.parse(text);
+      } catch {
+        body = text;
+      }
+    }
+  } catch (error) {
+    body = `Failed to read response body: ${formatError(error)}`;
+  }
+  console.error(
+    import_chalk.default.red(`Next REST Framework returned an error response:
+${formatContext(context)}status: ${response.status}
+body: ${formatValue(body)}`)
   );
 };
 
@@ -6800,10 +6866,13 @@ var apiRoute = (operations, options) => {
         }
       );
     }
+    let operationId;
     try {
-      const operation = Object.entries(operations).find(
+      const operationEntry = Object.entries(operations).find(
         ([_operationId, operation2]) => operation2.method === req.method
-      )?.[1];
+      );
+      operationId = operationEntry?.[0];
+      const operation = operationEntry?.[1];
       if (!operation) {
         res.setHeader(
           "Allow",
@@ -6949,7 +7018,11 @@ var apiRoute = (operations, options) => {
         res.status(501).json({ message: DEFAULT_ERRORS.notImplemented });
       }
     } catch (error) {
-      logNextRestFrameworkError(error);
+      logNextRestFrameworkError(error, {
+        method: req.method,
+        operationId,
+        url: req.url
+      });
       res.status(500).json({ message: DEFAULT_ERRORS.unexpectedError });
     }
   };
@@ -7106,7 +7179,10 @@ var docsApiRoute = (_config) => {
       res.setHeader("Content-Type", "text/html");
       res.status(200).send(html);
     } catch (error) {
-      logNextRestFrameworkError(error);
+      logNextRestFrameworkError(error, {
+        method: req.method,
+        url: req.url
+      });
       res.status(500).json({ message: DEFAULT_ERRORS.unexpectedError });
     }
   };
@@ -7128,13 +7204,15 @@ var rpcApiRoute = (operations, options) => {
         }
       );
     }
+    let operationId;
     try {
       if (req.method !== "POST" /* POST */) {
         res.setHeader("Allow", "POST");
         res.status(405).json({ message: DEFAULT_ERRORS.methodNotAllowed });
         return;
       }
-      const operation = operations[req.query.operationId?.toString() ?? ""];
+      operationId = req.query.operationId?.toString() ?? "";
+      const operation = operations[operationId];
       if (!operation) {
         res.status(400).json({ message: DEFAULT_ERRORS.operationNotAllowed });
         return;
@@ -7247,7 +7325,11 @@ var rpcApiRoute = (operations, options) => {
       const json = await parseRpcOperationResponseJson(_res);
       res.status(200).json(json);
     } catch (error) {
-      logNextRestFrameworkError(error);
+      logNextRestFrameworkError(error, {
+        method: req.method,
+        operationId,
+        url: req.url
+      });
       res.status(400).json({ message: DEFAULT_ERRORS.unexpectedError });
     }
   };
@@ -7277,7 +7359,10 @@ var docsRoute = (_config) => {
         }
       });
     } catch (error) {
-      logNextRestFrameworkError(error);
+      logNextRestFrameworkError(error, {
+        method: _req.method,
+        url: _req.url
+      });
       return import_server.NextResponse.json(
         { message: DEFAULT_ERRORS.unexpectedError },
         { status: 500 }
@@ -7299,10 +7384,18 @@ var FORM_DATA_CONTENT_TYPES = [
 ];
 var route = (operations, options) => {
   const handler = async (_req, context) => {
+    let operationId;
     try {
-      const operation = Object.entries(operations).find(
+      const operationEntry = Object.entries(operations).find(
         ([_operationId, operation2]) => operation2.method === _req.method
-      )?.[1];
+      );
+      operationId = operationEntry?.[0];
+      const operation = operationEntry?.[1];
+      const logContext = {
+        method: _req.method,
+        operationId,
+        url: _req.url
+      };
       if (!operation) {
         return import_server2.NextResponse.json(
           { message: DEFAULT_ERRORS.methodNotAllowed },
@@ -7322,6 +7415,7 @@ var route = (operations, options) => {
       });
       reqClone.json = async () => await _req.clone().json();
       reqClone.formData = async () => await _req.clone().formData();
+      reqClone.text = async () => await _req.clone().text();
       let middlewareOptions = {};
       if (middleware1) {
         const res2 = await middleware1(
@@ -7331,6 +7425,7 @@ var route = (operations, options) => {
         );
         const isOptionsResponse = (res3) => typeof res3 === "object";
         if (res2 instanceof Response) {
+          await logNextRestFrameworkResponse(res2, logContext);
           return res2;
         } else if (isOptionsResponse(res2)) {
           middlewareOptions = res2;
@@ -7342,6 +7437,7 @@ var route = (operations, options) => {
             middlewareOptions
           );
           if (res22 instanceof Response) {
+            await logNextRestFrameworkResponse(res22, logContext);
             return res22;
           } else if (isOptionsResponse(res22)) {
             middlewareOptions = res22;
@@ -7353,6 +7449,7 @@ var route = (operations, options) => {
               middlewareOptions
             );
             if (res3 instanceof Response) {
+              await logNextRestFrameworkResponse(res3, logContext);
               return res3;
             } else if (isOptionsResponse(res3)) {
               middlewareOptions = res3;
@@ -7515,9 +7612,14 @@ var route = (operations, options) => {
           { status: 501 }
         );
       }
+      await logNextRestFrameworkResponse(res, logContext);
       return res;
     } catch (error) {
-      logNextRestFrameworkError(error);
+      logNextRestFrameworkError(error, {
+        method: _req.method,
+        operationId,
+        url: _req.url
+      });
       return import_server2.NextResponse.json(
         { message: DEFAULT_ERRORS.unexpectedError },
         { status: 500 }
@@ -7661,6 +7763,7 @@ var routeOperation = ({
 var import_server4 = __toESM(require_server());
 var rpcRoute = (operations, options) => {
   const handler = async (req, { params }) => {
+    let operationId;
     try {
       if (req.method !== "POST" /* POST */) {
         return import_server4.NextResponse.json(
@@ -7673,7 +7776,8 @@ var rpcRoute = (operations, options) => {
           }
         );
       }
-      const operation = operations[(await params).operationId ?? ""];
+      operationId = (await params).operationId ?? "";
+      const operation = operations[operationId];
       if (!operation) {
         return import_server4.NextResponse.json(
           { message: DEFAULT_ERRORS.operationNotAllowed },
@@ -7819,7 +7923,11 @@ var rpcRoute = (operations, options) => {
         }
       });
     } catch (error) {
-      logNextRestFrameworkError(error);
+      logNextRestFrameworkError(error, {
+        method: req.method,
+        operationId,
+        url: req.url
+      });
       return import_server4.NextResponse.json(
         { message: DEFAULT_ERRORS.unexpectedError },
         { status: 400 }

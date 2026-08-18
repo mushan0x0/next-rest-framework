@@ -1,7 +1,7 @@
 import {
   findConfig,
   generateOpenApiSpec
-} from "./chunk-AYENIK7K.mjs";
+} from "./chunk-T2HUVI7B.mjs";
 
 // src/cli/validate.ts
 import { join } from "path";
