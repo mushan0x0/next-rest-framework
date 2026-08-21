@@ -224,7 +224,7 @@ export const rpcRoute = <
         }
       });
     } catch (error) {
-      logNextRestFrameworkError(error, {
+      await logNextRestFrameworkError(error, {
         method: req.method,
         operationId,
         url: req.url

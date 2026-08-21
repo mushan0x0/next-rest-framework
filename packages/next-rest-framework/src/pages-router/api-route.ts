@@ -251,7 +251,7 @@ export const apiRoute = <T extends Record<string, ApiRouteOperationDefinition>>(
         res.status(501).json({ message: DEFAULT_ERRORS.notImplemented });
       }
     } catch (error) {
-      logNextRestFrameworkError(error, {
+      await logNextRestFrameworkError(error, {
         method: req.method,
         operationId,
         url: req.url
