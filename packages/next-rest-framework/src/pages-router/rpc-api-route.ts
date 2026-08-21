@@ -205,7 +205,7 @@ export const rpcApiRoute = <
       const json = await parseRpcOperationResponseJson(_res);
       res.status(200).json(json);
     } catch (error) {
-      logNextRestFrameworkError(error, {
+      await logNextRestFrameworkError(error, {
         method: req.method,
         operationId,
         url: req.url

@@ -317,7 +317,7 @@ export const route = <T extends Record<string, RouteOperationDefinition>>(
       await logNextRestFrameworkResponse(res, logContext);
       return res;
     } catch (error) {
-      logNextRestFrameworkError(error, {
+      await logNextRestFrameworkError(error, {
         method: _req.method,
         operationId,
         url: _req.url
