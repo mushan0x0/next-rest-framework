@@ -8,12 +8,13 @@ import {
   logPagesEdgeRuntimeErrorForRoute,
   parseRpcOperationResponseJson,
   rpcOperation,
+  setErrorReporter,
   validateSchema
-} from "./chunk-6SRCROVP.mjs";
+} from "./chunk-ZZIELFKX.mjs";
 import {
   DEFAULT_ERRORS,
   FORM_DATA_CONTENT_TYPES_THAT_SUPPORT_VALIDATION
-} from "./chunk-2PBOIPNY.mjs";
+} from "./chunk-A5W7WHTM.mjs";
 import {
   __commonJS,
   __toESM
@@ -5915,7 +5916,7 @@ var apiRoute = (operations, options) => {
         res.status(501).json({ message: DEFAULT_ERRORS.notImplemented });
       }
     } catch (error) {
-      logNextRestFrameworkError(error, {
+      await logNextRestFrameworkError(error, {
         method: req.method,
         operationId,
         url: req.url
@@ -6076,7 +6077,7 @@ var docsApiRoute = (_config) => {
       res.setHeader("Content-Type", "text/html");
       res.status(200).send(html);
     } catch (error) {
-      logNextRestFrameworkError(error, {
+      await logNextRestFrameworkError(error, {
         method: req.method,
         url: req.url
       });
@@ -6222,7 +6223,7 @@ var rpcApiRoute = (operations, options) => {
       const json = await parseRpcOperationResponseJson(_res);
       res.status(200).json(json);
     } catch (error) {
-      logNextRestFrameworkError(error, {
+      await logNextRestFrameworkError(error, {
         method: req.method,
         operationId,
         url: req.url
@@ -6256,7 +6257,7 @@ var docsRoute = (_config) => {
         }
       });
     } catch (error) {
-      logNextRestFrameworkError(error, {
+      await logNextRestFrameworkError(error, {
         method: _req.method,
         url: _req.url
       });
@@ -6512,7 +6513,7 @@ var route = (operations, options) => {
       await logNextRestFrameworkResponse(res, logContext);
       return res;
     } catch (error) {
-      logNextRestFrameworkError(error, {
+      await logNextRestFrameworkError(error, {
         method: _req.method,
         operationId,
         url: _req.url
@@ -6820,7 +6821,7 @@ var rpcRoute = (operations, options) => {
         }
       });
     } catch (error) {
-      logNextRestFrameworkError(error, {
+      await logNextRestFrameworkError(error, {
         method: req.method,
         operationId,
         url: req.url
@@ -6853,7 +6854,8 @@ export {
   routeOperation,
   rpcApiRoute,
   rpcOperation,
-  rpcRoute
+  rpcRoute,
+  setErrorReporter
 };
 /*! Bundled license information:
 

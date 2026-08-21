@@ -35,7 +35,7 @@ var require_package = __commonJS({
   "package.json"(exports2, module2) {
     module2.exports = {
       name: "next-rest-framework",
-      version: "6.1.4",
+      version: "6.2.0",
       description: "Next REST Framework - Type-safe, self-documenting APIs for Next.js",
       keywords: [
         "nextjs",

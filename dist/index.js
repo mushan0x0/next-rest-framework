@@ -38,7 +38,7 @@ var require_package = __commonJS({
   "package.json"(exports2, module2) {
     module2.exports = {
       name: "next-rest-framework",
-      version: "6.1.4",
+      version: "6.2.0",
       description: "Next REST Framework - Type-safe, self-documenting APIs for Next.js",
       keywords: [
         "nextjs",
@@ -5891,7 +5891,8 @@ __export2(src_exports, {
   routeOperation: () => routeOperation,
   rpcApiRoute: () => rpcApiRoute,
   rpcOperation: () => rpcOperation,
-  rpcRoute: () => rpcRoute
+  rpcRoute: () => rpcRoute,
+  setErrorReporter: () => setErrorReporter
 });
 module.exports = __toCommonJS(src_exports);
 
@@ -6243,11 +6244,26 @@ Please use \`route\` instead: https://vercel.com/docs/functions/edge-functions/q
 ---`)
   );
 };
-var logNextRestFrameworkError = (error, context) => {
+var errorReporter;
+var setErrorReporter = (reporter) => {
+  errorReporter = reporter;
+};
+var logNextRestFrameworkError = async (error, context) => {
   console.error(
     import_chalk.default.red(`Next REST Framework encountered an error:
 ${formatContext(context)}${formatError(error)}`)
   );
+  if (!errorReporter) {
+    return;
+  }
+  try {
+    await errorReporter(error, context);
+  } catch (reportingError) {
+    console.error(
+      import_chalk.default.red(`Next REST Framework error reporter threw:
+${formatError(reportingError)}`)
+    );
+  }
 };
 var logNextRestFrameworkResponse = async (response, context) => {
   if (response.status < 500) {
@@ -7018,7 +7034,7 @@ var apiRoute = (operations, options) => {
         res.status(501).json({ message: DEFAULT_ERRORS.notImplemented });
       }
     } catch (error) {
-      logNextRestFrameworkError(error, {
+      await logNextRestFrameworkError(error, {
         method: req.method,
         operationId,
         url: req.url
@@ -7179,7 +7195,7 @@ var docsApiRoute = (_config) => {
       res.setHeader("Content-Type", "text/html");
       res.status(200).send(html);
     } catch (error) {
-      logNextRestFrameworkError(error, {
+      await logNextRestFrameworkError(error, {
         method: req.method,
         url: req.url
       });
@@ -7325,7 +7341,7 @@ var rpcApiRoute = (operations, options) => {
       const json = await parseRpcOperationResponseJson(_res);
       res.status(200).json(json);
     } catch (error) {
-      logNextRestFrameworkError(error, {
+      await logNextRestFrameworkError(error, {
         method: req.method,
         operationId,
         url: req.url
@@ -7359,7 +7375,7 @@ var docsRoute = (_config) => {
         }
       });
     } catch (error) {
-      logNextRestFrameworkError(error, {
+      await logNextRestFrameworkError(error, {
         method: _req.method,
         url: _req.url
       });
@@ -7615,7 +7631,7 @@ var route = (operations, options) => {
       await logNextRestFrameworkResponse(res, logContext);
       return res;
     } catch (error) {
-      logNextRestFrameworkError(error, {
+      await logNextRestFrameworkError(error, {
         method: _req.method,
         operationId,
         url: _req.url
@@ -7923,7 +7939,7 @@ var rpcRoute = (operations, options) => {
         }
       });
     } catch (error) {
-      logNextRestFrameworkError(error, {
+      await logNextRestFrameworkError(error, {
         method: req.method,
         operationId,
         url: req.url
@@ -7957,7 +7973,8 @@ var rpcRoute = (operations, options) => {
   routeOperation,
   rpcApiRoute,
   rpcOperation,
-  rpcRoute
+  rpcRoute,
+  setErrorReporter
 });
 /*! Bundled license information:
 

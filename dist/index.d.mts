@@ -8,6 +8,35 @@ export { r as rpcOperation } from './index-DyLm2-he.mjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { NextConfig } from 'next';
 
+interface NextRestFrameworkErrorLogContext {
+    method?: string;
+    operationId?: string;
+    route?: string;
+    url?: string;
+}
+/**
+ * A hook for reporting server-side errors somewhere other than the console.
+ *
+ * Why this exists: `route`, `apiRoute`, `rpcRoute` and the docs routes wrap every handler
+ * in a try/catch and answer with a generic 500. That is the right thing to send a client,
+ * but it also means the error never propagates out of the handler — so a host framework's
+ * error hook (Next's `onRequestError`, for one) never sees it, and an application has no
+ * place at all to persist the error, count it, or forward it to an APM. All that was left
+ * was `console.error`, which on a serverless/edge host means "attach a log tail and hope
+ * you were watching".
+ *
+ * The reporter receives the original error, untouched, plus whatever context the framework
+ * knows (method, operationId, url/route). What the client gets back does not change.
+ */
+type NextRestFrameworkErrorReporter = (error: unknown, context?: NextRestFrameworkErrorLogContext) => void | Promise<void>;
+/**
+ * Register (or, with no argument, clear) the error reporter described above. Call it once
+ * while the server starts up — Next's `instrumentation.ts` `register()` is the natural
+ * place. Registering twice replaces the previous reporter: there is deliberately only one,
+ * so that "where do server errors go" has a single answer per process.
+ */
+declare const setErrorReporter: (reporter?: NextRestFrameworkErrorReporter) => void;
+
 declare const docsRoute: (_config?: NextRestFrameworkConfig) => {
     GET: {
         (_req: NextRequest, _context: {
@@ -323,4 +352,4 @@ declare const rpcApiRoute: <T extends Record<string, RpcOperationDefinition<any,
     client: RpcClient<T>;
 };
 
-export { type TypedNextApiRequest, type TypedNextApiResponse, type TypedNextRequest, TypedNextResponse, apiRoute, apiRouteOperation, docsApiRoute, docsRoute, route, routeOperation, rpcApiRoute, rpcRoute };
+export { type NextRestFrameworkErrorLogContext, type NextRestFrameworkErrorReporter, type TypedNextApiRequest, type TypedNextApiResponse, type TypedNextRequest, TypedNextResponse, apiRoute, apiRouteOperation, docsApiRoute, docsRoute, route, routeOperation, rpcApiRoute, rpcRoute, setErrorReporter };
